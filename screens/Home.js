@@ -1,0 +1,76 @@
+import React, { useContext, useEffect } from "react";
+import { View, StyleSheet, Text } from "react-native";
+import { GlobalStyles } from "../constants/styles";
+import AllProducts from "./AllProducts";
+import { ProductsContext } from "../store/inventory-context";
+import {fetchProducts} from "../util/http"
+
+const Home = () => {
+  const productsCtx = useContext(ProductsContext);
+
+  useEffect(() => {
+    const updateProducts = async () => {
+      try {
+        // Fetch the updated products from the context or API
+        const updatedProducts = await fetchProducts();
+
+        // Update the products in the context
+        productsCtx.setProducts(updatedProducts);
+      } catch (error) {
+        console.error("There was an error fetching products:", error);
+      }
+    };
+
+    // Call the updateProducts function to initially fetch and update the products
+    updateProducts();
+
+    // Set up a WebSocket connection or any other real-time update mechanism
+    // and listen for updates to the products from the server or other sources
+    const socket = new WebSocket("wss://example.com/socket");
+
+    socket.onmessage = (event) => {
+      const updatedProduct = JSON.parse(event.data);
+
+      // Update the product in the context
+      productsCtx.updateProduct(updatedProduct);
+    };
+
+    // Clean up the WebSocket connection when the component unmounts
+    return () => {
+      socket.close();
+    };
+  }, [productsCtx]);
+
+  return (
+    <View style={styles.container}>
+    <View style={styles.orderContainer}>
+      <Text style={styles.orderText}>Order Products In Orange</Text>
+    </View>
+      <AllProducts />
+    </View>
+  );
+};
+
+export default Home;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: GlobalStyles.colors.primary50,
+  },
+  orderContainer: {
+    backgroundColor: GlobalStyles.colors.primary50,
+    flexDirection: "column",
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  orderText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: GlobalStyles.colors.orange500
+  }
+});
