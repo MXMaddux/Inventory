@@ -1,14 +1,12 @@
+import React, { createContext, useState } from "react";
 
+export const ScannerContext = createContext();
 
-import React, { createContext, useState } from 'react';
+export const ScannerProvider = ({ children }) => {
+  const [scannedInfo, setScannedInfo] = useState(null);
 
-const ScannerContext = createContext();
-
-const ScannerProvider = ({ children }) => {
-  const [scannedInfo, setScannedInfo] = useState({});
-
-  const updateScannedInfo = (data) => {
-    setScannedInfo(data);
+  const updateScannedInfo = (info) => {
+    setScannedInfo(info);
   };
 
   return (
@@ -18,4 +16,4 @@ const ScannerProvider = ({ children }) => {
   );
 };
 
-export { ScannerContext, ScannerProvider }
+

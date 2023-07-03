@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, Alert } from "react-native";
+import { StyleSheet, View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,15 +8,106 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import * as SplashScreen from "expo-splash-screen";
 import MenuModal from "./components/UI/MenuModal";
+import ProductsContextProvider from "./store/inventory-context";
+import { ScannerProvider } from "./store/ScannerContext";
 import Home from "./screens/Home";
 import { GlobalStyles } from "./constants/styles";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
-import AuthContextProvider, { AuthContext } from "./store/auth-context";
 import IconButton from "./components/UI/IconButton"
+import AuthContextProvider, { AuthContext } from "./store/auth-context";
+
+
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
+
+
+
+function AuthStack({authCtx}) {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
+        headerTintColor: "white",
+        contentStyle: { backgroundColor: GlobalStyles.colors.primary100 },
+      }}
+    >
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: "Login",
+        }}
+      />
+      <Stack.Screen
+        name="Signup"
+        component={SignupScreen}
+        options={{
+          title: "Signup",
+        }}
+      />
+
+      <Stack.Screen
+        name="Home"
+        component={Home}
+        options={{
+          headerRight: ({ tintColor }) => (
+            <IconButton
+              icon="exit"
+              color={tintColor}
+              size={24}
+              onPress={authCtx.logout}
+            />
+          ),
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function AuthenticatedStack({authCtx}) {
+  
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
+        headerTintColor: "white",
+        contentStyle: { backgroundColor: GlobalStyles.colors.primary100 },
+      }}
+    >
+      <Stack.Screen
+        name="Home"
+        component={Home}
+        options={{
+          headerRight: ({ tintColor }) => (
+            <IconButton
+              icon="exit"
+              color={tintColor}
+              size={24}
+              onPress={authCtx.logout}
+            />
+          ),
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function Navigation() {
+  const authCtx = useContext(AuthContext);
+
+  return (
+    <NavigationContainer>
+      {authCtx.isAuthenticated ? (
+        <AuthenticatedStack authCtx={authCtx}/>
+      ) : (
+        <AuthStack authCtx={authCtx}/>
+      )}
+    </NavigationContainer>
+  );
+}
+
 
 const InventoryOverview = () => {
   return (
@@ -54,91 +145,6 @@ const InventoryOverview = () => {
   );
 };
 
-function AuthStack() {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
-        headerTintColor: "white",
-        contentStyle: { backgroundColor: GlobalStyles.colors.primary100 },
-      }}
-    >
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          title: "Login",
-        }}
-      />
-      <Stack.Screen
-        name="Signup"
-        component={SignupScreen}
-        options={{
-          title: "Signup",
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function AuthenticatedStack() {
-  const authCtx = useContext(AuthContext);
-
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
-        headerTintColor: "white",
-        contentStyle: { backgroundColor: GlobalStyles.colors.primary100 },
-      }}
-    >
-      <Stack.Screen
-        name="InventoryOverview"
-        component={InventoryOverview}
-        options={{
-          headerRight: ({ tintColor }) => (
-            <IconButton
-              icon="exit"
-              color={tintColor}
-              size={24}
-              onPress={authCtx.logout}
-            />
-          ),
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-
-function Navigation() {
-  return (
-    <NavigationContainer>
-      <AuthContextProvider>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
-            headerTintColor: "white",
-            contentStyle: { backgroundColor: GlobalStyles.colors.primary100 },
-          }}
-        >
-          {/* Add your screens here */}
-          <Stack.Screen
-            name="Auth"
-            component={AuthStack}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Authenticated"
-            component={AuthenticatedStack}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </AuthContextProvider>
-    </NavigationContainer>
-  );
-}
-
 function Root() {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const authCtx = useContext(AuthContext);
@@ -163,16 +169,33 @@ function Root() {
     fetchToken();
   }, []);
 
-  if (isAppLoading) {
-    return <View style={styles.container} />;
-  }
+  useEffect(() => {
+    if (!isAppLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isAppLoading]);
 
-  SplashScreen.hideAsync();
+  if (isAppLoading) {
+    return (
+      <View style={styles.container}>
+        {/* Render your loading overlay here */}
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
+  }
 
   return (
     <>
       <StatusBar style="light" />
-      <Navigation />
+      <ScannerProvider>
+        <ProductsContextProvider>
+          {authCtx.isAuthenticated ? (
+            <AuthenticatedStack />
+          ) : (
+            <AuthStack />
+          )}          
+        </ProductsContextProvider>
+      </ScannerProvider>
     </>
   );
 }
@@ -180,7 +203,10 @@ function Root() {
 export default function App() {
   return (
     <AuthContextProvider>
-      <Root />
+      {/* <NavigationContainer>
+        <Root />
+      </NavigationContainer> */}
+      <Navigation />
     </AuthContextProvider>
   );
 }

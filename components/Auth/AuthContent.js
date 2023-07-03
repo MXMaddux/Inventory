@@ -1,31 +1,27 @@
-import React, { useState, useContext } from "react";
-import { Alert, KeyboardAvoidingView, StyleSheet, View, Text } from "react-native";
-import { ActivityIndicator } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-
-import FlatButton from "../UI/FlatButton";
-import AuthForm from "./AuthForm";
-import { GlobalStyles } from "../../constants/styles";
-import { AuthContext } from "../../store/auth-context";
+import { useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import FlatButton from '../UI/FlatButton';
+import AuthForm from './AuthForm';
+import { GlobalStyles } from '../../constants/styles';
 
 function AuthContent({ isLogin, onAuthenticate }) {
   const navigation = useNavigation();
-  const authCtx = useContext(AuthContext);
+
   const [credentialsInvalid, setCredentialsInvalid] = useState({
     email: false,
     password: false,
     confirmEmail: false,
     confirmPassword: false,
   });
-  const [loading, setLoading] = useState(false);
 
   const switchAuthModeHandler = () => {
     if (isLogin) {
-      navigation.navigate("Signup");
+        navigation.navigate("Signup");
     } else {
-      navigation.navigate("Login");
+        navigation.navigate("Login");
     }
-  };
+  }
 
   function submitHandler(credentials) {
     let { email, confirmEmail, password, confirmPassword } = credentials;
@@ -33,7 +29,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
     email = email.trim();
     password = password.trim();
 
-    const emailIsValid = email.includes("@");
+    const emailIsValid = email.includes('@');
     const passwordIsValid = password.length > 6;
     const emailsAreEqual = email === confirmEmail;
     const passwordsAreEqual = password === confirmPassword;
@@ -43,7 +39,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
       !passwordIsValid ||
       (!isLogin && (!emailsAreEqual || !passwordsAreEqual))
     ) {
-      Alert.alert("Invalid input", "Please check your entered credentials.");
+      Alert.alert('Invalid input', 'Please check your entered credentials.');
       setCredentialsInvalid({
         email: !emailIsValid,
         confirmEmail: !emailIsValid || !emailsAreEqual,
@@ -52,56 +48,34 @@ function AuthContent({ isLogin, onAuthenticate }) {
       });
       return;
     }
-
-    setLoading(true);
-
-    onAuthenticate({ email, password })
-      .then(() => {
-        setLoading(false);
-        // Authentication successful, perform necessary actions
-        // For example, navigate to the Home screen
-        navigation.navigate("InventoryOverview");
-      })
-      .catch((error) => {
-        setLoading(false);
-        Alert.alert("Authentication Failed", error.message);
-      });
+    onAuthenticate({ email, password });
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <View style={styles.authContent}>
-        <AuthForm
-          isLogin={isLogin}
-          onSubmit={submitHandler}
-          credentialsInvalid={credentialsInvalid}
-        />
-        <View style={styles.buttons}>
-          {loading ? (
-            <ActivityIndicator
-              size="small"
-              color={GlobalStyles.colors.accent500}
-            />
-          ) : (
-            <FlatButton onPress={switchAuthModeHandler}>
-            <Text>{isLogin ? "Create a new user" : "Log in instead"}</Text>
-            </FlatButton>
-          )}
-        </View>
+    <View style={styles.container}>
+    <View style={styles.authContent}>
+      <AuthForm
+        isLogin={isLogin}
+        onSubmit={submitHandler}
+        credentialsInvalid={credentialsInvalid}
+      />
+      <View style={styles.buttons}>
+        <FlatButton onPress={switchAuthModeHandler}>
+          {isLogin ? 'Create a new user' : 'Log in instead'}
+        </FlatButton>
       </View>
-    </KeyboardAvoidingView>
+    </View>
+    </View>
   );
 }
 
 export default AuthContent;
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: GlobalStyles.colors.primary100,
-    marginTop: 40,
+    backgroundColor: GlobalStyles.colors.primary100
   },
   authContent: {
     marginTop: 16,
@@ -111,7 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: GlobalStyles.colors.primary800,
     elevation: 2,
-    shadowColor: "black",
+    shadowColor: 'black',
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.35,
     shadowRadius: 4,

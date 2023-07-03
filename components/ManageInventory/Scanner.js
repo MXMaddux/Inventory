@@ -3,7 +3,6 @@ import { View, StyleSheet } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { GlobalStyles } from "../../constants/styles";
 import { ScannerContext } from "../../store/ScannerContext";
-import LoadingOverlay from "../UI/LoadingOverlay";
 import axios from "axios";
 
 const Scanner = ({ onScanComplete }) => {
@@ -16,9 +15,8 @@ const Scanner = ({ onScanComplete }) => {
   const [company, setCompany] = useState("");
   const [size, setSize] = useState("");
   const [code, setCode] = useState(null);
-  // const [hasFetchedData, setHasFetchedData] = useState(false); // Flag variable
-
-  const handleBarCodeScanned = (e) => {
+  
+  const handleBarCodeScanned = async (e) => {
     setShowLoadingOverlay(true);
 
     const scannedData = e;
@@ -29,34 +27,28 @@ const Scanner = ({ onScanComplete }) => {
     }
 
     if (!isDataFetched) {
-      setIsDataFetched(true); // Set the flag to true to prevent multiple requests
+      setIsDataFetched(true);
 
-      fetchData(barcodeNumber)
-        .then((result) => {
-          const { title, manufacturer } = result;
-          // console.log(title);
-          setTitle(title);
-          setCompany(manufacturer);
-          setCode(barcodeNumber);
+      try {
+        const result = await fetchData(barcodeNumber);
+        const { title, manufacturer } = result;
+        setTitle(title);
+        setCompany(manufacturer);
+        setCode(barcodeNumber);
 
-          const updatedInfo = {
-            title,
-            code: barcodeNumber,
-            company: manufacturer,
-          };
+        const updatedInfo = {
+          title,
+          code: barcodeNumber,
+          company: manufacturer,
+        };
 
-          updateScannedInfo(updatedInfo);
-          
-        })
-        .catch((error) => {
-          console.error(
-            "There has been a problem with your fetch info: " + error
-          );
-          // Handle the error and update the state or perform any necessary actions
-        })
-        .finally(() => {
-          setShowLoadingOverlay(false);
-        });
+        updateScannedInfo(updatedInfo);
+      } catch (error) {
+        console.error("There has been a problem with your fetch info: " + error);
+        // Handle the error and update the state or perform any necessary actions
+      } finally {
+        setShowLoadingOverlay(false);
+      }
     }
   };
 
@@ -76,29 +68,24 @@ const Scanner = ({ onScanComplete }) => {
     try {
       const response = await axios.request(options);
       const result = response.data.product;
-      // console.log(result.title);
+
       if (result && result.title) {
         return result;
       } else {
         throw new Error("Invalid API response: Missing product title");
       }
     } catch (error) {
-      // console.error("There has been a problem with your fetch info: " + error);
-      throw error; // Throw the error to be caught by the promise chain
+      throw error;
     }
   };
 
- 
-
   return (
-    <>
-      <View style={styles.container}>
-        <BarCodeScanner
-          onBarCodeScanned={handleBarCodeScanned}
-          style={styles.barcodebox}
-        />
-      </View>
-    </>
+    <View style={styles.container}>
+      <BarCodeScanner
+        onBarCodeScanned={handleBarCodeScanned}
+        style={styles.barcodebox}
+      />
+    </View>
   );
 };
 
@@ -111,13 +98,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  maintext: {
-    fontSize: 16,
-    margin: 20,
-  },
-  infoText: {
-    color: "#ffffff",
-  },
   barcodebox: {
     alignItems: "center",
     justifyContent: "center",
@@ -125,11 +105,6 @@ const styles = StyleSheet.create({
     width: 300,
     overflow: "hidden",
     borderRadius: 30,
-    backgroundColor: GlobalStyles.colors.primary800,
-    marginBottom: 8,
-  },
-  errorText: {
-    color: GlobalStyles.colors.error500,
-    margin: 10,
+    backgroundColor: "white",
   },
 });
