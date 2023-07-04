@@ -16,16 +16,15 @@ import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import IconButton from "./components/UI/IconButton"
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
-
-
+import ScannerScreen from "./screens/ScannerScreen";
+import AddProduct from "./screens/AddProduct";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
-
-
 function AuthStack({authCtx}) {
   return (
+    <ScannerProvider>
     <Stack.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
@@ -47,10 +46,9 @@ function AuthStack({authCtx}) {
           title: "Signup",
         }}
       />
-
       <Stack.Screen
-        name="Home"
-        component={Home}
+        name="InventoryOverview"
+        component={InventoryOverview}
         options={{
           headerRight: ({ tintColor }) => (
             <IconButton
@@ -62,7 +60,22 @@ function AuthStack({authCtx}) {
           ),
         }}
       />
+      <Stack.Screen
+        name="ScannerScreen"
+        component={ScannerScreen}
+        options={{
+          title: "Scanner",
+        }}
+      />
+      <Stack.Screen
+        name="Add Product"
+        component={AddProduct}
+        options={{
+          title: "Add New Product",
+        }}
+      />
     </Stack.Navigator>
+    </ScannerProvider>
   );
 }
 
@@ -96,17 +109,34 @@ function AuthenticatedStack({authCtx}) {
 
 function Navigation() {
   const authCtx = useContext(AuthContext);
+  const [isAppLoading, setIsAppLoading] = useState(true);
+
+  useEffect(() => {
+    setIsAppLoading(false);
+    SplashScreen.preventAutoHideAsync();
+  }, []);
+
+  useEffect(() => {
+    if (!isAppLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isAppLoading]);
 
   return (
     <NavigationContainer>
-      {authCtx.isAuthenticated ? (
-        <AuthenticatedStack authCtx={authCtx}/>
+      {isAppLoading ? (
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color="white" />
+        </View>
+      ) : authCtx.isAuthenticated ? (
+        <AuthenticatedStack authCtx={authCtx} />
       ) : (
-        <AuthStack authCtx={authCtx}/>
+        <AuthStack authCtx={authCtx} />
       )}
     </NavigationContainer>
   );
 }
+
 
 
 const InventoryOverview = () => {
@@ -169,31 +199,49 @@ function Root() {
     fetchToken();
   }, []);
 
-  useEffect(() => {
-    if (!isAppLoading) {
-      SplashScreen.hideAsync();
-    }
-  }, [isAppLoading]);
-
   if (isAppLoading) {
-    return (
-      <View style={styles.container}>
-        {/* Render your loading overlay here */}
-        <ActivityIndicator size="large" color="white" />
-      </View>
-    );
+    return <View style={styles.container} />;
   }
+
+  SplashScreen.hideAsync();
 
   return (
     <>
       <StatusBar style="light" />
       <ScannerProvider>
         <ProductsContextProvider>
-          {authCtx.isAuthenticated ? (
-            <AuthenticatedStack />
-          ) : (
-            <AuthStack />
-          )}          
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: GlobalStyles.colors.primary500,
+              },
+              headerTintColor: "#ffffff",
+            }}
+          >
+            <Stack.Screen
+              name="Inventory Overview"
+              component={InventoryOverview}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ManageInventory"
+              component={ManageInventory}
+              options={{
+                presentation: "modal",
+              }}
+            />
+            <Stack.Screen name="AllProducts" component={AllProducts} />
+            <Stack.Screen name="Add Product" component={AddProduct} />
+            <Stack.Screen
+              name="AddOneToStockAmount"
+              component={AddOneToStockAmount}
+            />
+            <Stack.Screen
+              name="SubtractOneFromStockAmount"
+              component={SubtractOneFromStockAmount}
+            />
+            <Stack.Screen name="ScannerScreen" component={ScannerScreen} />
+          </Stack.Navigator>
         </ProductsContextProvider>
       </ScannerProvider>
     </>
@@ -203,9 +251,6 @@ function Root() {
 export default function App() {
   return (
     <AuthContextProvider>
-      {/* <NavigationContainer>
-        <Root />
-      </NavigationContainer> */}
       <Navigation />
     </AuthContextProvider>
   );

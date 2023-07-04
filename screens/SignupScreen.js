@@ -18,7 +18,7 @@ function SignupScreen() {
     try {
       const token = await createUser(email, password);
       authCtx.authenticate(token);
-      navigation.replace("Home")
+      navigation.replace("InventoryOverview")
     } catch (error) {
       Alert.alert(
         'Authentication failed',

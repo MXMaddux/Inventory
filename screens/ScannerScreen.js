@@ -1,30 +1,30 @@
-import { View, StyleSheet } from "react-native";
+import React, { useContext } from "react";
+import { View, StyleSheet, Text } from "react-native"; // Import the Text component
 import Scanner from "../components/ManageInventory/Scanner";
 import { useNavigation } from "@react-navigation/native";
 import { GlobalStyles } from "../constants/styles";
+import { ScannerProvider } from "../store/ScannerContext";
 
-
-
-// Render the Scanner component within a screen component
 const ScannerScreen = () => {
-const navigation = useNavigation();
+  const navigation = useNavigation();
 
-// Function to navigate to AddProduct screen
-const navigateToAddProduct = () => {
-  navigation.navigate("Add Product");
-};
-
-
-    return (
-      <>
-      <View style={styles.container}>
-   <Scanner onScanComplete={navigateToAddProduct} />
-      </View>
-      </>
-    );
+  // Function to navigate to AddProduct screen
+  const navigateToAddProduct = () => {
+    navigation.navigate("Add Product");
   };
 
-  export default ScannerScreen;
+  return (
+    <ScannerProvider>
+      <View style={styles.container}>
+        <Scanner onScanComplete={navigateToAddProduct} />
+      </View>
+    </ScannerProvider>
+  );
+};
+
+export default ScannerScreen;
+
+
 
   const styles = StyleSheet.create({
     container: {

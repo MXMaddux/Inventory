@@ -18,7 +18,7 @@ function LoginScreen() {
     try {
       const token = await login(email, password);
       authCtx.authenticate(token);
-      navigation.replace("Home");
+      navigation.replace("InventoryOverview");
     } catch (error) {
       Alert.alert(
         'Authentication failed!',
@@ -36,3 +36,5 @@ function LoginScreen() {
 }
 
 export default LoginScreen;
+
+

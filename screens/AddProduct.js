@@ -1,19 +1,18 @@
 import React, { useContext, useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import { ScannerContext } from "../store/ScannerContext";
-import { GlobalStyles } from "../constants/styles";
 import Button from "../components/UI/Button";
 import Input from "../components/ManageInventory/Input";
 import { useNavigation } from "@react-navigation/native";
 import { addNewProduct, fetchProducts } from "../util/http";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import { ProductsContext } from "../store/inventory-context";
+import { ScannerContext } from "../store/ScannerContext";
+import { GlobalStyles } from "../constants/styles";
 
 const AddProduct = ({ onSubmit, defaultValues }) => {
-  const { scannedInfo } = useContext(ScannerContext);
   const productsCtx = useContext(ProductsContext);
+  const scannerCtx = useContext(ScannerContext);
   const [title, setTitle] = useState("");
-  // const [category, setCategory] = useState("");
   const [code, setCode] = useState("");
   const [company, setCompany] = useState("");
   const [size, setSize] = useState("");
@@ -36,10 +35,6 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
       value: defaultValues ? defaultValues.code.toString() : "",
       isValid: true,
     },
-    // category: {
-    //   value: defaultValues ? defaultValues.category : "",
-    //   isValid: true,
-    // },
     company: {
       value: defaultValues ? defaultValues.company : "",
       isValid: true,
@@ -49,58 +44,34 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
       isValid: true,
     },
   });
+  
+  
 
   const [loading, setLoading] = useState(true);
+  const { scannedInfo } = useContext(ScannerContext);
 
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (scannedInfo.title) {
-      setInputs((prevInputs) => ({
-        ...prevInputs,
-        title: { value: scannedInfo.title, isValid: true },
+    if (scannedInfo) {
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        title: scannedInfo.title,
+        code: scannedInfo.code.toString(),
+        company: scannedInfo.company,
+        size: scannedInfo.size.toString(),
+        stockAmount: "",
+        idealAmount: "",
       }));
-      setTitle(scannedInfo.title);
     }
-
-    if (scannedInfo.code) {
-      setInputs((prevInputs) => ({
-        ...prevInputs,
-        code: { value: scannedInfo.code.toString(), isValid: true },
-      }));
-      setCode(scannedInfo.code.toString());
-    }
-
-    if (scannedInfo.company) {
-      setInputs((prevInputs) => ({
-        ...prevInputs,
-        company: { value: scannedInfo.company, isValid: true },
-      }));
-      setCompany(scannedInfo.company);
-    }
-
-    if (scannedInfo.size) {
-      setInputs((prevInputs) => ({
-        ...prevInputs,
-        size: { value: scannedInfo.size.toString(), isValid: true },
-      }));
-      setSize(scannedInfo.size.toString());
-    }
-
-    setInputs((prevInputs) => ({
-      ...prevInputs,
-      stockAmount: { value: "", isValid: true },
-      idealAmount: { value: "", isValid: true },
-    }));
-
-    // Set loading to false after the inputs are prefilled
-    // setLoading(false)
+    
     if (loading) {
       setTimeout(() => {
         setLoading(false);
-      }, 2000);
+      }, 2500);
     }
-  }, [scannedInfo]);
+
+  }, [scannedInfo, loading]);
 
   function handleCancel() {
     navigation.navigate("Home");
@@ -125,9 +96,6 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
       case "code":
         setCode(inputValue);
         break;
-      // case "category":
-      //   setCategory(inputValue);
-        break;
       case "company":
         setCompany(inputValue);
         break;
@@ -141,18 +109,16 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
 
   async function handleSubmit() {
     const productData = {
-      title,
-      // category,
-      code,
-      company,
-      size,
-      stockAmount: parseInt(stockAmount),
-      idealAmount: parseInt(idealAmount),
+      title: inputs.title.value,
+      code: parseInt(inputs.code.value),
+      company: inputs.company.value,
+      size: parseInt(inputs.size.value),
+      stockAmount: parseInt(inputs.stockAmount.value),
+      idealAmount: parseInt(inputs.idealAmount.value),
     };
-  
+
     if (
       productData.title === "" ||
-      // productData.category === "" ||
       productData.code === "" ||
       productData.company === "" ||
       productData.size === "" ||
@@ -164,12 +130,13 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
       ]);
       return;
     }
-  
+
     try {
       setLoading(true);
-  
+
       // Check if the barcode number is already assigned to another product
       const products = await fetchProducts();
+      console.log(products);
       const existingProduct = products.find(
         (product) => product.code === productData.code
       );
@@ -183,7 +150,7 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
         navigation.navigate("Home");
         return;
       }
-  
+
       await addNewProduct(productData);
       setLoading(false);
       productsCtx.refreshProducts();
@@ -193,24 +160,23 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
         { text: "Okay", style: "destructive" },
       ]);
     } catch (error) {
+      console.log(error)
       setLoading(false);
-      navigation.navigate("Home")
+      navigation.navigate("Home");
     }
-  }  
-  
-  if (loading) {
-    return <LoadingOverlay />;      
   }
 
   const formIsInvalid =
-    !inputs.stockAmount.isValid ||
-    !inputs.idealAmount.isValid ||
-    !inputs.title.isValid ||
-    // !inputs.category.isValid ||
-    !inputs.code.isValid ||
-    !inputs.company.isValid ||
-    !inputs.size.isValid;
+    title.trim() === "" ||
+    code.trim() === "" ||
+    company.trim() === "" ||
+    size.trim() === "" ||
+    isNaN(parseInt(stockAmount)) ||
+    isNaN(parseInt(idealAmount));
 
+  if (loading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <>
@@ -219,7 +185,7 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
           <LoadingOverlay />
         ) : (
           <View style={styles.container}>
-            
+            {/* Rest of the code */}
             <View style={styles.form}>
               {/* Input components */}
               <View>
@@ -230,6 +196,7 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
                     onChangeText: (text) => inputChangedHandler("title", text),
                     value: inputs.title.value,
                     multiline: true,
+                    maxHeight: 30
                   }}
                 />
               </View>
@@ -268,19 +235,6 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
                     value: inputs.company.value,
                   }}
                 />
-              <Input
-                style={styles.rowInput}
-                label="Size oz/ml"
-                invalid={!inputs.size.isValid}
-                textInputConfig={{
-                  keyboardType: "decimal-pad",
-                  onChangeText: (text) => inputChangedHandler("size", text),
-                  value: inputs.size.value,
-                }}
-              />
-              </View>
-            </View>
-            <View style={styles.inputsRow}>
                 <Input
                   style={styles.rowInput}
                   label="Barcode"
@@ -291,7 +245,19 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
                     value: inputs.code.value,
                   }}
                 />
-              
+              </View>
+            </View>
+            <View style={styles.inputsRow}>
+              <Input
+                style={styles.rowInput}
+                label="Size oz/ml"
+                invalid={!inputs.size.isValid}
+                textInputConfig={{
+                  keyboardType: "decimal-pad",
+                  onChangeText: (text) => inputChangedHandler("size", text),
+                  value: inputs.size.value,
+                }}
+              />
             </View>
           </View>
         )}
@@ -342,10 +308,6 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.orange500,
     margin: 8,
   },
-  waitingText: {
-    marginTop: 16,
-    color: GlobalStyles.colors.primary50
-  },
   buttons: {
     flexDirection: "row",
     justifyContent: "center",
@@ -360,4 +322,3 @@ const styles = StyleSheet.create({
     marginTop: "40%",
   },
 });
-
