@@ -2,11 +2,10 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { GlobalStyles } from "../../constants/styles";
 
-const ProductsSummary = ({ products, company, title, code, idealAmount, category, amountToOrder, stockAmount }) => {
+const ProductsSummary = ({ products, company, title, code, idealAmount, amountToOrder, stockAmount }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.period}>{title}</Text>
-      <Text style={styles.period}>{category}</Text>
       <Text style={styles.period}>{company}</Text>
       <Text style={styles.period}>{code}</Text>
       <Text style={styles.period}>{stockAmount}</Text>

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View, ActivityIndicator } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -14,10 +14,13 @@ import Home from "./screens/Home";
 import { GlobalStyles } from "./constants/styles";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
-import IconButton from "./components/UI/IconButton"
+import IconButton from "./components/UI/IconButton";
+import AddOneToStockAmount from  "./screens/AddOneToStockAmount"
+import SubtractOneFromStockAmount from "./screens/SubtractOneFromStockAmount"
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
 import ScannerScreen from "./screens/ScannerScreen";
 import AddProduct from "./screens/AddProduct";
+import AllProducts from "./screens/AllProducts";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -25,61 +28,78 @@ const BottomTabs = createBottomTabNavigator();
 function AuthStack({authCtx}) {
   return (
     <ScannerProvider>
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
-        headerTintColor: "white",
-        contentStyle: { backgroundColor: GlobalStyles.colors.primary100 },
-      }}
-    >
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          title: "Login",
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
+          headerTintColor: "white",
+          contentStyle: { backgroundColor: GlobalStyles.colors.primary100 },
         }}
-      />
-      <Stack.Screen
-        name="Signup"
-        component={SignupScreen}
-        options={{
-          title: "Signup",
-        }}
-      />
-      <Stack.Screen
-        name="InventoryOverview"
-        component={InventoryOverview}
-        options={{
-          headerRight: ({ tintColor }) => (
-            <IconButton
-              icon="exit"
-              color={tintColor}
-              size={24}
-              onPress={authCtx.logout}
+      >
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            title: "Login",
+          }}
+        />
+        <Stack.Screen
+          name="Signup"
+          component={SignupScreen}
+          options={{
+            title: "Signup",
+          }}
+        />
+        <Stack.Screen
+          name="InventoryOverview"
+          component={InventoryOverview}
+          options={{
+            headerRight: ({ tintColor }) => (
+              <IconButton
+                icon="exit"
+                color={tintColor}
+                size={24}
+                onPress={authCtx.logout}
+              />
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="ScannerScreen"
+          component={ScannerScreen}
+          options={{
+            title: "Scanner",
+          }}
+        />
+        <Stack.Screen
+          name="Add Product"
+          component={AddProduct}
+          options={{
+            title: "Add New Product",
+          }}
+        />
+        <Stack.Screen
+        name="AllProducts"
+        component={AllProducts}
+         />
+         <Stack.Screen
+              name="AddOneToStockAmount"
+              component={AddOneToStockAmount}
             />
-          ),
-        }}
-      />
-      <Stack.Screen
-        name="ScannerScreen"
-        component={ScannerScreen}
-        options={{
-          title: "Scanner",
-        }}
-      />
-      <Stack.Screen
-        name="Add Product"
-        component={AddProduct}
-        options={{
-          title: "Add New Product",
-        }}
-      />
-    </Stack.Navigator>
+            <Stack.Screen
+              name="SubtractOneFromStockAmount"
+              component={SubtractOneFromStockAmount}
+            />
+      </Stack.Navigator>
     </ScannerProvider>
   );
 }
 
 function AuthenticatedStack({authCtx}) {
+  const navigation = useNavigation();
+  const goToLogin = () => {
+    authCtx.logout
+    navigation.navigate("Login")
+  }
   
   return (
     <Stack.Navigator
@@ -103,6 +123,20 @@ function AuthenticatedStack({authCtx}) {
           ),
         }}
       />
+      <Stack.Screen
+          name="InventoryOverview"
+          component={InventoryOverview}
+          options={{
+            headerRight: ({ tintColor }) => (
+              <IconButton
+                icon="exit"
+                color={tintColor}
+                size={24}
+                onPress={goToLogin}
+              />
+            ),
+          }}
+        />
     </Stack.Navigator>
   );
 }

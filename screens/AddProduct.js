@@ -2,16 +2,16 @@ import React, { useContext, useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import Button from "../components/UI/Button";
 import Input from "../components/ManageInventory/Input";
-import { useNavigation } from "@react-navigation/native";
 import { addNewProduct, fetchProducts } from "../util/http";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import { ProductsContext } from "../store/inventory-context";
-import { ScannerContext } from "../store/ScannerContext";
+import { ScannerContext, useScanner } from "../store/ScannerContext";
 import { GlobalStyles } from "../constants/styles";
 
-const AddProduct = ({ onSubmit, defaultValues }) => {
+const AddProduct = ({ onSubmit, defaultValues, route, navigation}) => {
+  const {info : scannedInfo} = route.params;
+  // console.log("🚀 ~ file: AddProduct.js:14 ~ AddProduct ~ scannedInfo:", scannedInfo);
   const productsCtx = useContext(ProductsContext);
-  const scannerCtx = useContext(ScannerContext);
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
   const [company, setCompany] = useState("");
@@ -44,35 +44,62 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
       isValid: true,
     },
   });
-  
-  
 
   const [loading, setLoading] = useState(true);
-  const { scannedInfo } = useContext(ScannerContext);
 
-  const navigation = useNavigation();
+  
 
+  
   useEffect(() => {
-    if (scannedInfo) {
-      setFormValues((prevValues) => ({
-        ...prevValues,
-        title: scannedInfo.title,
-        code: scannedInfo.code.toString(),
-        company: scannedInfo.company,
-        size: scannedInfo.size.toString(),
-        stockAmount: "",
-        idealAmount: "",
+    // console.log(scannedInfo)
+    // console.log("🚀 ~ file: AddProduct.js:55 ~ useEffect ~ scannedInfo:", scannedInfo);
+    if (scannedInfo && Object.keys(scannedInfo).length > 0) {
+      if (scannedInfo.title) {
+        setInputs((prevInputs) => ({
+          ...prevInputs,
+          title: { value: scannedInfo.title, isValid: true },
+        }));
+        setTitle(scannedInfo.title);
+      }
+  
+      if (scannedInfo.code) {
+        setInputs((prevInputs) => ({
+          ...prevInputs,
+          code: { value: scannedInfo.code.toString(), isValid: true },
+        }));
+        setCode(scannedInfo.code.toString());
+      }
+  
+      if (scannedInfo.company) {
+        setInputs((prevInputs) => ({
+          ...prevInputs,
+          company: { value: scannedInfo.company, isValid: true },
+        }));
+        setCompany(scannedInfo.company);
+      }
+  
+      if (scannedInfo.size) {
+        setInputs((prevInputs) => ({
+          ...prevInputs,
+          size: { value: scannedInfo.size.toString(), isValid: true },
+        }));
+        setSize(scannedInfo.size.toString());
+      }
+  
+      setInputs((prevInputs) => ({
+        ...prevInputs,
+        stockAmount: { value: "", isValid: true },
+        idealAmount: { value: "", isValid: true },
       }));
     }
-    
-    if (loading) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 2500);
-    }
 
-  }, [scannedInfo, loading]);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
 
+  }, [scannedInfo]);
+
+  
   function handleCancel() {
     navigation.navigate("Home");
   }
@@ -109,12 +136,12 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
 
   async function handleSubmit() {
     const productData = {
-      title: inputs.title.value,
-      code: parseInt(inputs.code.value),
-      company: inputs.company.value,
-      size: parseInt(inputs.size.value),
-      stockAmount: parseInt(inputs.stockAmount.value),
-      idealAmount: parseInt(inputs.idealAmount.value),
+      title,
+      code,
+      company,
+      size,
+      stockAmount: parseInt(stockAmount),
+      idealAmount: parseInt(idealAmount),
     };
 
     if (
@@ -136,7 +163,7 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
 
       // Check if the barcode number is already assigned to another product
       const products = await fetchProducts();
-      console.log(products);
+      // console.log(products);
       const existingProduct = products.find(
         (product) => product.code === productData.code
       );
@@ -160,23 +187,23 @@ const AddProduct = ({ onSubmit, defaultValues }) => {
         { text: "Okay", style: "destructive" },
       ]);
     } catch (error) {
-      console.log(error)
       setLoading(false);
       navigation.navigate("Home");
     }
   }
 
-  const formIsInvalid =
-    title.trim() === "" ||
-    code.trim() === "" ||
-    company.trim() === "" ||
-    size.trim() === "" ||
-    isNaN(parseInt(stockAmount)) ||
-    isNaN(parseInt(idealAmount));
-
   if (loading) {
     return <LoadingOverlay />;
   }
+
+  const formIsInvalid =
+    !inputs.stockAmount.isValid ||
+    !inputs.idealAmount.isValid ||
+    !inputs.title.isValid ||
+    !inputs.code.isValid ||
+    !inputs.company.isValid ||
+    !inputs.size.isValid;
+
 
   return (
     <>

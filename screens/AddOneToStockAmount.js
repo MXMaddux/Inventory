@@ -29,7 +29,6 @@ const AddOneToStockAmount = ({ onScanComplete }) => {
 
       try {
         const result = await fetchData(data);
-        // console.log(result.title);
 
         if (result && result.title) {
           // Find the product to update in the context
@@ -70,7 +69,7 @@ const AddOneToStockAmount = ({ onScanComplete }) => {
     try {
       const response = await axios.request(options);
       const result = response.data.product;
-      // console.log(result)
+      // console.log("result from line 73", result)
       // console.log(result.title)
 
       if (result && result.title) {

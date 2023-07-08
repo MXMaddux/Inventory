@@ -4,6 +4,7 @@ import { GlobalStyles } from '../../constants/styles';
 import ProductsList from "./ProductsList";
 import Button from '../UI/Button';
 import { useNavigation } from '@react-navigation/native';
+import ProductsSummary from './ProductsSummary';
 
 const ProductsOutput = ({
   products,
@@ -14,6 +15,7 @@ const ProductsOutput = ({
   let content = null;
 
   if (products.length > 0) {
+    // console.log("Products from ProductsOutput.js: ", products)
     content = <ProductsList products={products} />;
   } else {
     content = (
@@ -26,6 +28,7 @@ const ProductsOutput = ({
   return (
     <View style={styles.container}>
       {/* ProductsSummary component goes here */}
+      <ProductsSummary />
       {content}
     </View>
   );

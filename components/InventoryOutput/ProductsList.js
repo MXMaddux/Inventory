@@ -13,7 +13,7 @@ const ProductsList = ({products}) => {
     );
   }
   const renderProductItem = (itemData) => {
-    // console.log(itemData.item.id)
+    // console.log("ProductsList.js itemData: ", itemData.item.id)
     if (!itemData.item.id) {
       return null; // or handle the case where the id is missing or null
     }

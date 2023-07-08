@@ -35,7 +35,7 @@ export const useGetInfo = async (barcodeNumber, updateScannedInfo) => {
       company: company,
       size: size,
     };
-    updateScannedInfo(updatedInfo);
+    // updateScannedInfo(updatedInfo);
     
   
     return { result, title, code, size, updatedInfo };

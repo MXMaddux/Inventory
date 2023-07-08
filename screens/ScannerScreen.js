@@ -9,8 +9,11 @@ const ScannerScreen = () => {
   const navigation = useNavigation();
 
   // Function to navigate to AddProduct screen
-  const navigateToAddProduct = () => {
-    navigation.navigate("Add Product");
+  const navigateToAddProduct = (info) => {
+    console.log("🚀 ~ file: ScannerScreen.js:13 ~ navigateToAddProduct ~ info:", info);
+    navigation.navigate("Add Product", {
+      info,
+    });
   };
 
   return (
