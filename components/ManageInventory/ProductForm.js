@@ -64,7 +64,7 @@ setIsScanning(!isScanning)
 
 
     const stockAmountIsValid =
-      !isNaN(productData.stockAmount) && productData.stockAmount > 0;
+      !isNaN(productData.stockAmount) && productData.stockAmount >= 0;
     const idealAmountIsValid =
       !isNaN(productData.idealAmount) && productData.idealAmount > 0;
     const codeIsValid = !isNaN(productData.code) && productData.code > 0;
@@ -86,7 +86,7 @@ setIsScanning(!isScanning)
           code: { value: curInputs.code.value, isValid: codeIsValid },
           company: {
             value: curInputs.company.value,
-            isValid: categoryIsValid,
+            isValid: companyIsValid,
           },
           size: { value: curInputs.size.value, isValid: sizeIsValid },
         };

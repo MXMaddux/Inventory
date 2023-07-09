@@ -20,7 +20,6 @@ export const fetchProducts = async () => {
   try {
     const response = await axios.get(BACKEND_URL + "/inventory.json");
     const products = [];
-    
 
     for (const key in response.data) {
       const productObj = {
@@ -41,6 +40,7 @@ export const fetchProducts = async () => {
     throw error;
   }
 };
+
 
 export const updateProduct = async (id, productData) => {
   

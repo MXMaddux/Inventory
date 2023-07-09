@@ -1,20 +1,19 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { GlobalStyles } from '../../constants/styles';
-import ProductsList from "./ProductsList";
-import { useNavigation } from '@react-navigation/native';
+import ProductsList from './ProductsList';
 import ProductsSummary from './ProductsSummary';
 
-const ProductsOutput = ({
-  products,
-  fallbackText,
-}) => {
-  const navigation = useNavigation();
+const ProductsOutput = ({ products, fallbackText }) => {
   let content = null;
 
   if (products.length > 0) {
-    // console.log("Products from ProductsOutput.js: ", products)
-    content = <ProductsList products={products} />;
+    content = (
+      <>
+        <ProductsSummary products={products} />
+        <ProductsList products={products} />
+      </>
+    );
   } else {
     content = (
       <View style={styles.emptyStateContainer}>
@@ -23,13 +22,7 @@ const ProductsOutput = ({
     );
   }
 
-  return (
-    <View style={styles.container}>
-      {/* ProductsSummary component goes here */}
-      <ProductsSummary />
-      {content}
-    </View>
-  );
+  return <View style={styles.container}>{content}</View>;
 };
 
 export default ProductsOutput;
@@ -54,4 +47,3 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
 });
-

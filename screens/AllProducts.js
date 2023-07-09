@@ -1,20 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ProductsContext } from '../store/inventory-context';
-import { fetchProducts, updateProduct } from '../util/http';
+import { fetchProducts } from '../util/http';
 import ProductsOutput from '../components/InventoryOutput/ProductsOutput';
+import Button from '../components/UI/Button';
 
 const AllProducts = () => {
   const productsCtx = useContext(ProductsContext);
   const [products, setProducts] = useState(productsCtx.products);
-  const [scannedData, setScannedData] = useState(null);
-  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const getProducts = async () => {
       try {
         const fetchedProducts = await fetchProducts();
         productsCtx.setProducts(fetchedProducts);
-        setProducts(fetchedProducts);
       } catch (error) {
         console.error('There was an error retrieving products:', error);
       }
@@ -22,6 +20,10 @@ const AllProducts = () => {
 
     getProducts();
   }, []);
+
+  useEffect(() => {
+    setProducts(productsCtx.products);
+  }, [productsCtx.products]);
 
   const handleUpdateProduct = async (productId, updatedProduct) => {
     try {
@@ -35,10 +37,7 @@ const AllProducts = () => {
         }
         return product;
       });
-      setProducts(updatedProducts);
-      setScannedData(null); // Reset scanned data
-      setShowModal(true); // Show modal again
-      await fetchProducts(); // Fetch the updated products from the database
+      productsCtx.setProducts(updatedProducts);
     } catch (error) {
       console.error('There was an error updating the product:', error);
     }
@@ -51,16 +50,8 @@ const AllProducts = () => {
         onUpdateProduct={handleUpdateProduct}
         fallbackText="No items found. Add some products."
       />
-      {showModal && scannedData && (
-        <HowManyModal
-          onQuantitySelected={handleUpdateProduct}
-          scannedData={scannedData}
-          setShowModal={setShowModal}
-        />
-      )}
     </>
   );
 };
-
 
 export default AllProducts;
