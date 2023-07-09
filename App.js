@@ -15,17 +15,18 @@ import { GlobalStyles } from "./constants/styles";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import IconButton from "./components/UI/IconButton";
-import AddOneToStockAmount from  "./screens/AddOneToStockAmount"
-import SubtractOneFromStockAmount from "./screens/SubtractOneFromStockAmount"
+import AddOneToStockAmount from "./screens/AddOneToStockAmount";
+import SubtractOneFromStockAmount from "./screens/SubtractOneFromStockAmount";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
 import ScannerScreen from "./screens/ScannerScreen";
 import AddProduct from "./screens/AddProduct";
 import AllProducts from "./screens/AllProducts";
+import ManageInventory from "./screens/ManageInventory";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
-function AuthStack({authCtx}) {
+function AuthStack({ authCtx }) {
   return (
     <ScannerProvider>
       <Stack.Navigator
@@ -77,30 +78,28 @@ function AuthStack({authCtx}) {
             title: "Add New Product",
           }}
         />
+        <Stack.Screen name="AllProducts" component={AllProducts} />
         <Stack.Screen
-        name="AllProducts"
-        component={AllProducts}
-         />
-         <Stack.Screen
-              name="AddOneToStockAmount"
-              component={AddOneToStockAmount}
-            />
-            <Stack.Screen
-              name="SubtractOneFromStockAmount"
-              component={SubtractOneFromStockAmount}
-            />
+          name="AddOneToStockAmount"
+          component={AddOneToStockAmount}
+        />
+        <Stack.Screen
+          name="SubtractOneFromStockAmount"
+          component={SubtractOneFromStockAmount}
+        />
+        <Stack.Screen name="ManageInventory" component={ManageInventory} />
       </Stack.Navigator>
     </ScannerProvider>
   );
 }
 
-function AuthenticatedStack({authCtx}) {
+function AuthenticatedStack({ authCtx }) {
   const navigation = useNavigation();
   const goToLogin = () => {
-    authCtx.logout
-    navigation.navigate("Login")
-  }
-  
+    authCtx.logout;
+    navigation.replace("Login");
+  };
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -118,25 +117,25 @@ function AuthenticatedStack({authCtx}) {
               icon="exit"
               color={tintColor}
               size={24}
-              onPress={authCtx.logout}
+              onPress={goToLogin}
             />
           ),
         }}
       />
       <Stack.Screen
-          name="InventoryOverview"
-          component={InventoryOverview}
-          options={{
-            headerRight: ({ tintColor }) => (
-              <IconButton
-                icon="exit"
-                color={tintColor}
-                size={24}
-                onPress={goToLogin}
-              />
-            ),
-          }}
-        />
+        name="InventoryOverview"
+        component={InventoryOverview}
+        options={{
+          headerRight: ({ tintColor }) => (
+            <IconButton
+              icon="exit"
+              color={tintColor}
+              size={24}
+              onPress={goToLogin}
+            />
+          ),
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -170,8 +169,6 @@ function Navigation() {
     </NavigationContainer>
   );
 }
-
-
 
 const InventoryOverview = () => {
   return (
@@ -284,9 +281,11 @@ function Root() {
 
 export default function App() {
   return (
-    <AuthContextProvider>
-      <Navigation />
-    </AuthContextProvider>
+    <ProductsContextProvider>
+      <AuthContextProvider>
+        <Navigation />
+      </AuthContextProvider>
+    </ProductsContextProvider>
   );
 }
 

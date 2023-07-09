@@ -30,7 +30,7 @@ export const ProductsContext = createContext({
         return state.filter((product) => product.id !== action.payload);
       default:
         return state;
-    }
+    } 
   }
   
   function ProductsContextProvider({ children }) {
@@ -39,9 +39,9 @@ export const ProductsContext = createContext({
     function addProduct(productData) {
       dispatch({ type: 'ADD', payload: productData });
     }
-
-    function setProducts(products) {
-      dispatch({type: 'SET', payload: products})
+  
+    function setProducts(newProducts) {
+      dispatch({ type: 'SET', payload: newProducts });
     }
   
     function deleteProduct(id) {
@@ -51,6 +51,7 @@ export const ProductsContext = createContext({
     function updateProduct(id, productData) {
       dispatch({ type: 'UPDATE', payload: { id: id, data: productData } });
     }
+    
   
     const value = {
       products: productsState,
@@ -67,4 +68,6 @@ export const ProductsContext = createContext({
     );
   }
   
+  
+
   export default ProductsContextProvider;

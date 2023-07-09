@@ -2,14 +2,12 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { GlobalStyles } from '../../constants/styles';
 import ProductsList from "./ProductsList";
-import Button from '../UI/Button';
 import { useNavigation } from '@react-navigation/native';
 import ProductsSummary from './ProductsSummary';
 
 const ProductsOutput = ({
   products,
   fallbackText,
-  size,
 }) => {
   const navigation = useNavigation();
   let content = null;
