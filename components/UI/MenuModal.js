@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useContext} from "react";
 import { StyleSheet, View, Text, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { GlobalStyles } from "../../constants/styles";
+import { AuthContext } from "../../store/auth-context";
 
 const MenuModal = () => {
   const navigation = useNavigation();
+  authCtx = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -29,6 +31,17 @@ const MenuModal = () => {
       >
         <View style={styles.menuContainer}>
           <Text style={styles.text}>Subtract from stock amount</Text>
+        </View>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+        authCtx.logout()
+        navigation.navigate("Login", { key: Date.now() })
+        }
+        }
+      >
+        <View style={styles.menuContainer}>
+          <Text style={styles.text}>Logout</Text>
         </View>
       </Pressable>
     </View>

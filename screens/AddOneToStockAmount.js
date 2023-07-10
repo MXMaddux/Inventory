@@ -121,7 +121,6 @@ const AddOneToStockAmount = ({ onScanComplete }) => {
     }
   };
 
-  console.log("productsCtx.products: ", productsCtx.products);
 
   return (
     <>

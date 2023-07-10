@@ -27,6 +27,11 @@ const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 function AuthStack({ authCtx }) {
+  const navigation = useNavigation();
+  const goToLogin = () => {
+    authCtx.logout;
+    navigation.navigate("Login");
+  };
   return (
     <ScannerProvider>
       <Stack.Navigator
@@ -54,14 +59,7 @@ function AuthStack({ authCtx }) {
           name="InventoryOverview"
           component={InventoryOverview}
           options={{
-            headerRight: ({ tintColor }) => (
-              <IconButton
-                icon="exit"
-                color={tintColor}
-                size={24}
-                onPress={authCtx.logout}
-              />
-            ),
+            headerShown: false,
           }}
         />
         <Stack.Screen
@@ -97,7 +95,7 @@ function AuthenticatedStack({ authCtx }) {
   const navigation = useNavigation();
   const goToLogin = () => {
     authCtx.logout;
-    navigation.replace("Login");
+    navigation.navigate("Login");
   };
 
   return (
@@ -126,14 +124,15 @@ function AuthenticatedStack({ authCtx }) {
         name="InventoryOverview"
         component={InventoryOverview}
         options={{
-          headerRight: ({ tintColor }) => (
-            <IconButton
-              icon="exit"
-              color={tintColor}
-              size={24}
-              onPress={goToLogin}
-            />
-          ),
+          headerShown: false,
+          // headerRight: ({ tintColor }) => (
+          //   <IconButton
+          //     icon="exit"
+          //     color={tintColor}
+          //     size={24}
+          //     onPress={goToLogin}
+          //   />
+          // ),
         }}
       />
     </Stack.Navigator>
@@ -162,7 +161,9 @@ function Navigation() {
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : authCtx.isAuthenticated ? (
-        <AuthenticatedStack authCtx={authCtx} />
+        <ScannerProvider> {/* Wrap with ScannerProvider */}
+          <AuthenticatedStack authCtx={authCtx} />
+        </ScannerProvider>
       ) : (
         <AuthStack authCtx={authCtx} />
       )}
