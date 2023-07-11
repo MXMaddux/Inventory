@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, FlatList, StyleSheet } from 'react-native'
 import ProductItem from './ProductItem'
+import { GlobalStyles } from '../../constants/styles';
 
 
 
@@ -30,12 +31,15 @@ export default ProductsList
 const styles = StyleSheet.create({
   emptyStateContainer: {
     flex: 1,
+    width: "100%",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    backgroundColor: GlobalStyles.colors.primary700
   },
   emptyStateText: {
     fontSize: 18,
     textAlign: "center",
-    marginTop: 20
+    marginTop: 20,
+    color: "#ffffff"
   }
 })

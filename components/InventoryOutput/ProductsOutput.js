@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { GlobalStyles } from '../../constants/styles';
-import ProductsList from './ProductsList';
-import ProductsSummary from './ProductsSummary';
+import React from "react";
+import { View, StyleSheet, Text } from "react-native";
+import { GlobalStyles } from "../../constants/styles";
+import ProductsList from "./ProductsList";
+import ProductsSummary from "./ProductsSummary";
 
 const ProductsOutput = ({ products, fallbackText }) => {
   let content = null;
@@ -30,20 +30,20 @@ export default ProductsOutput;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: GlobalStyles.colors.primary700,
-    width: '100%',
+    width: "100%",
   },
   emptyStateContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyStateText: {
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
-    color: '#ffffff',
+    color: "#ffffff",
   },
 });

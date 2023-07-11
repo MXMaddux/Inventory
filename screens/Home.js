@@ -1,12 +1,15 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import AllProducts from "./AllProducts";
 import { ProductsContext } from "../store/inventory-context";
-import {fetchProducts} from "../util/http"
+import { fetchProducts } from "../util/http";
+import { useIsFocused } from "@react-navigation/native";
 
-const Home = () => {
+const Home = ({ navigation }) => {
   const productsCtx = useContext(ProductsContext);
+  const [products, setProducts] = useState([]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     const updateProducts = async () => {
@@ -16,6 +19,7 @@ const Home = () => {
 
         // Update the products in the context
         productsCtx.setProducts(updatedProducts);
+        setProducts(updatedProducts);
       } catch (error) {
         console.error("There was an error fetching products:", error);
       }
@@ -23,30 +27,25 @@ const Home = () => {
 
     // Call the updateProducts function to initially fetch and update the products
     updateProducts();
-
-    // Set up a WebSocket connection or any other real-time update mechanism
-    // and listen for updates to the products from the server or other sources
-    const socket = new WebSocket("wss://example.com/socket");
-
-    socket.onmessage = (event) => {
-      const updatedProduct = JSON.parse(event.data);
-
-      // Update the product in the context
-      productsCtx.updateProduct(updatedProduct);
-    };
-
-    // Clean up the WebSocket connection when the component unmounts
-    return () => {
-      socket.close();
-    };
   }, []);
+
+  useEffect(() => {
+    // Add a listener to refresh the products when the screen is focused
+    const refreshProducts = navigation.addListener("focus", () => {
+      const updatedProducts = productsCtx.products;
+      setProducts(updatedProducts);
+    });
+
+    // Clean up the listener when the component unmounts
+    return refreshProducts;
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
-    <View style={styles.orderContainer}>
-      <Text style={styles.orderText}>Order Products In Orange</Text>
-    </View>
-      <AllProducts />
+      <View style={styles.orderContainer}>
+        <Text style={styles.orderText}>Order Products In Orange</Text>
+      </View>
+      <AllProducts products={products} />
     </View>
   );
 };
@@ -59,12 +58,13 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: GlobalStyles.colors.primary50,
+    backgroundColor: GlobalStyles.colors.primary700,
   },
   orderContainer: {
-    backgroundColor: GlobalStyles.colors.primary50,
+    backgroundColor: "#ffffff",
     flexDirection: "column",
     padding: 20,
+    width: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
