@@ -1,17 +1,19 @@
 import React, { useContext, useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Button from "../components/UI/Button";
 import Input from "../components/ManageInventory/Input";
 import { addNewProduct, fetchProducts } from "../util/http";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import { ProductsContext } from "../store/inventory-context";
 import { ScannerContext, useScanner } from "../store/ScannerContext";
+import { AuthContext } from "../store/auth-context";
 import { GlobalStyles } from "../constants/styles";
 
 const AddProduct = ({ onSubmit, defaultValues, route, navigation}) => {
   const {info : scannedInfo} = route.params;
-  // console.log("🚀 ~ file: AddProduct.js:14 ~ AddProduct ~ scannedInfo:", scannedInfo);
   const productsCtx = useContext(ProductsContext);
+  const authCtx = useContext(AuthContext);
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
   const [company, setCompany] = useState("");
@@ -51,8 +53,6 @@ const AddProduct = ({ onSubmit, defaultValues, route, navigation}) => {
 
   
   useEffect(() => {
-    // console.log(scannedInfo)
-    // console.log("🚀 ~ file: AddProduct.js:55 ~ useEffect ~ scannedInfo:", scannedInfo);
     if (scannedInfo && Object.keys(scannedInfo).length > 0) {
       if (scannedInfo.title) {
         setInputs((prevInputs) => ({
@@ -135,6 +135,8 @@ const AddProduct = ({ onSubmit, defaultValues, route, navigation}) => {
   }
 
   async function handleSubmit() {
+    const userID = await AsyncStorage.getItem('userID');
+    console.log("🚀 ~ file: AddProduct.js:141 ~ handleSubmit ~ userID:", userID);
     const productData = {
       title,
       code,
@@ -142,6 +144,7 @@ const AddProduct = ({ onSubmit, defaultValues, route, navigation}) => {
       size,
       stockAmount: parseInt(stockAmount),
       idealAmount: parseInt(idealAmount),
+      userID,
     };
 
     if (

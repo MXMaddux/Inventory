@@ -12,18 +12,18 @@ export const AuthContext = createContext({
 const AuthContextProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(null);
 
-  const authenticate = (token) => {
+  const authenticate = async (token) => {
     setAuthToken(token);
     if (token) {
-      AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("token", token);
     } else {
-      AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("token");
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setAuthToken(null);
-    AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("token");
   };
 
   const value = {

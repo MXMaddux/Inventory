@@ -102,8 +102,7 @@ const Scanner = ({ onScanComplete }) => {
     <>
       <View style={styles.container}>
         <BarCodeScanner
-          // onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          onBarCodeScanned={handleBarCodeScanned}
+          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={styles.barcodebox}
         />
         {scanned && <Button title={'Getting Data...'} onPress={() => setScanned(false)} />}

@@ -16,7 +16,6 @@ const Home = () => {
 
         // Update the products in the context
         productsCtx.setProducts(updatedProducts);
-        // console.log("Here are the updated products in Home.js: ", updatedProducts)
       } catch (error) {
         console.error("There was an error fetching products:", error);
       }
@@ -40,7 +39,7 @@ const Home = () => {
     return () => {
       socket.close();
     };
-  }, [productsCtx]);
+  }, []);
 
   return (
     <View style={styles.container}>
