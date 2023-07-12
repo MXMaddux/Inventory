@@ -1,10 +1,10 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AUTH_API_KEY } from "@env";
+import { EXPO_PUBLIC_AUTH_API_KEY } from "@env";
 
 
 export async function authenticate(mode, email, password) {
-  const url = `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=${AUTH_API_KEY}`;
+  const url = `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=${EXPO_PUBLIC_AUTH_API_KEY}`;
   const response = await axios.post(url, {
     email: email,
     password: password,

@@ -1,6 +1,6 @@
 import axios from "axios";
 import {  useState } from "react";
-import { API_KEY } from "@env";
+import { EXPO_PUBLIC_API_KEY } from "@env";
 
 
 export const useGetInfo = async (barcodeNumber, updateScannedInfo) => {
@@ -16,7 +16,7 @@ export const useGetInfo = async (barcodeNumber, updateScannedInfo) => {
       query: barcodeNumber,
     },
     headers: {
-      "X-RapidAPI-Key": API_KEY,
+      "X-RapidAPI-Key": EXPO_PUBLIC_API_KEY,
       "X-RapidAPI-Host": "barcodes-lookup.p.rapidapi.com",
     },
   };
